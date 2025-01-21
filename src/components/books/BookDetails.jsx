@@ -1,21 +1,36 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { BookOpen, Plus, Loader } from 'lucide-react';
+import { BookOpen, Plus, Loader, Trash2 } from 'lucide-react';
 import { booksService } from '../../services/books';
 
 export default function BookDetails() {
   const [book, setBook] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
-  const [addingToLibrary, setAddingToLibrary] = useState(false);
+  const [isInLibrary, setIsInLibrary] = useState(false);
+  const [libraryBookId, setLibraryBookId] = useState(null);
+  const [actionInProgress, setActionInProgress] = useState(false);
   const { id } = useParams();
   const navigate = useNavigate();
 
   useEffect(() => {
     const fetchBookDetails = async () => {
       try {
-        const data = await booksService.getBookDetails(id);
-        setBook(data);
+        const [bookData, libraryBooks] = await Promise.all([
+          booksService.getBookDetails(id),
+          booksService.getUserLibrary()
+        ]);
+        
+        setBook(bookData);
+        // Check if book is in user's library by matching Google Books ID
+        const libraryBook = libraryBooks.find(lb => lb.isbn === bookData.id);
+        if (libraryBook) {
+          setIsInLibrary(true);
+          setLibraryBookId(libraryBook.id);
+        } else {
+          setIsInLibrary(false);
+          setLibraryBookId(null);
+        }
       } catch (err) {
         console.error('Error fetching book:', err);
         setError('Failed to load book details');
@@ -28,36 +43,39 @@ export default function BookDetails() {
   }, [id]);
 
   const handleAddToLibrary = async () => {
-    setAddingToLibrary(true);
+    setActionInProgress(true);
     try {
-      const response = await fetch('http://localhost:5000/api/books', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${localStorage.getItem('token')}`
-        },
-        body: JSON.stringify({
-          title: book.volumeInfo.title,
-          authors: book.volumeInfo.authors,
-          description: book.volumeInfo.description,
-          thumbnail: book.volumeInfo.imageLinks?.thumbnail,
-          publishedDate: book.volumeInfo.publishedDate,
-          googleBooksId: book.id,
-          categories: book.volumeInfo.categories
-        })
+      await booksService.addToLibrary({
+        title: book.volumeInfo.title,
+        authors: book.volumeInfo.authors,
+        description: book.volumeInfo.description,
+        thumbnail: book.volumeInfo.imageLinks?.thumbnail,
+        publishedDate: book.volumeInfo.publishedDate,
+        googleBooksId: book.id,
+        categories: book.volumeInfo.categories
       });
-
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.error || 'Failed to add book');
-      }
       
+      setIsInLibrary(true);
       navigate('/library');
     } catch (err) {
       console.error('Error adding book:', err);
       setError('Failed to add book to library');
     } finally {
-      setAddingToLibrary(false);
+      setActionInProgress(false);
+    }
+  };
+
+  const handleRemoveFromLibrary = async () => {
+    setActionInProgress(true);
+    try {
+      await booksService.removeFromLibrary(libraryBookId);
+      setIsInLibrary(false);
+      navigate('/library');
+    } catch (err) {
+      console.error('Error removing book:', err);
+      setError('Failed to remove book from library');
+    } finally {
+      setActionInProgress(false);
     }
   };
 
@@ -103,16 +121,24 @@ export default function BookDetails() {
             
             <div className="mt-6 w-full">
               <button
-                onClick={handleAddToLibrary}
-                disabled={addingToLibrary}
-                className="w-full flex items-center justify-center gap-2 px-6 py-3 bg-foreground text-background rounded-lg hover:bg-foreground/90 disabled:opacity-50 disabled:cursor-not-allowed transition-colors duration-200 font-medium"
+                onClick={isInLibrary ? handleRemoveFromLibrary : handleAddToLibrary}
+                disabled={actionInProgress}
+                className={`w-full flex items-center justify-center gap-2 px-6 py-3 rounded-lg transition-colors duration-200 font-medium ${
+                  isInLibrary 
+                    ? 'bg-destructive text-destructive-foreground hover:bg-destructive/90'
+                    : 'bg-foreground text-background hover:bg-foreground/90'
+                } disabled:opacity-50 disabled:cursor-not-allowed`}
               >
-                {addingToLibrary ? (
+                {actionInProgress ? (
                   <Loader className="w-5 h-5 animate-spin" />
+                ) : isInLibrary ? (
+                  <Trash2 className="w-5 h-5" />
                 ) : (
                   <Plus className="w-5 h-5" />
                 )}
-                {addingToLibrary ? 'Adding...' : 'Add to Library'}
+                {actionInProgress 
+                  ? (isInLibrary ? 'Removing...' : 'Adding...') 
+                  : (isInLibrary ? 'Remove from Library' : 'Add to Library')}
               </button>
             </div>
           </div>
