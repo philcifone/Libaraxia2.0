@@ -1,12 +1,10 @@
 // src/pages/Register.jsx
 import React from 'react';
 import { Link } from 'react-router-dom';
-import Layout from '../components/layout/Layout';
 import RegisterForm from '../components/auth/RegisterForm';
 
 export default function Register() {
   return (
-    <Layout>
       <div className="max-w-md mx-auto">
         <h1 className="text-2xl font-bold mb-8 text-center">Create an Account</h1>
         <RegisterForm />
@@ -17,6 +15,5 @@ export default function Register() {
           </Link>
         </p>
       </div>
-    </Layout>
   );
 }

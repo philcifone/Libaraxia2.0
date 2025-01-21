@@ -12,41 +12,44 @@ import Library from './pages/Library';
 // Import new components
 import Search from './pages/Search';
 import BookDetails from './components/books/BookDetails';
+import Layout from './components/layout/Layout';
 
 function App() {
   return (
     <Router>
       <AuthProvider>
-        <Routes>
-          <Route path="/" element={<Home />} />
-          <Route path="/login" element={<Login />} />
-          <Route path="/register" element={<Register />} />
-          <Route
-            path="/library"
-            element={
-              <ProtectedRoute>
-                <Library />
-              </ProtectedRoute>
-            }
-          />
-          {/* New routes for search and book details */}
-          <Route
-            path="/search"
-            element={
-              <ProtectedRoute>
-                <Search />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/books/:id"
-            element={
-              <ProtectedRoute>
-                <BookDetails />
-              </ProtectedRoute>
-            }
-          />
-        </Routes>
+        <Layout>
+          <Routes>
+            <Route path="/" element={<Home />} />
+            <Route path="/login" element={<Login />} />
+            <Route path="/register" element={<Register />} />
+            <Route
+              path="/library"
+              element={
+                <ProtectedRoute>
+                  <Library />
+                </ProtectedRoute>
+              }
+            />
+            {/* New routes for search and book details */}
+            <Route
+              path="/search"
+              element={
+                <ProtectedRoute>
+                  <Search />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/books/:id"
+              element={
+                <ProtectedRoute>
+                  <BookDetails />
+                </ProtectedRoute>
+              }
+            />
+          </Routes>
+        </Layout>
       </AuthProvider>
     </Router>
   );

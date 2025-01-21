@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import Layout from '../components/layout/Layout';
 import { useAuth } from '../hooks/useAuth';
 import { Loader, BookOpen } from 'lucide-react';
 
@@ -71,11 +70,9 @@ export default function Library() {
 
   if (loading) {
     return (
-      <Layout>
         <div className="flex items-center justify-center min-h-[50vh]">
           <Loader className="w-8 h-8 animate-spin text-blue-600" />
         </div>
-      </Layout>
     );
   }
 
@@ -87,7 +84,6 @@ export default function Library() {
   };
 
   return (
-    <Layout>
       <div className="container mx-auto px-4">
         <div className="flex justify-between items-center mb-8">
           <h1 className="text-3xl font-bold text-gray-900">
@@ -173,6 +169,5 @@ export default function Library() {
           </div>
         )}
       </div>
-    </Layout>
   );
 }
