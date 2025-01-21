@@ -1,7 +1,7 @@
 // services/books.js
 import axios from 'axios';
 
-const GOOGLE_BOOKS_API_KEY = 'AIzaSyCMV_j4smI0KR2qboQ0HDOj0d0JxUmQT4I';
+const GOOGLE_BOOKS_API_KEY = process.env.REACT_APP_GOOGLE_BOOKS_API_KEY;
 const GOOGLE_BOOKS_API_URL = 'https://www.googleapis.com/books/v1';
 
 // Create an axios instance for Google Books API
