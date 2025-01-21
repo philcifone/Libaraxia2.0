@@ -30,7 +30,7 @@ module.exports = function(db, authenticateToken) {
       const response = await axios.get('https://www.googleapis.com/books/v1/volumes', {
         params: {
           q,
-          key: process.env.GOOGLE_BOOKS_API_KEY || 'AIzaSyCMV_j4smI0KR2qboQ0HDOj0d0JxUmQT4I'
+          key: process.env.GOOGLE_BOOKS_API_KEY
         }
       });
 

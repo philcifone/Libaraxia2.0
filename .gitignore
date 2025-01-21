@@ -27,3 +27,4 @@ yarn-error.log*
 # db
 /library-backend/*.db
 /library-backend/node_modules
+/library-backend/.env

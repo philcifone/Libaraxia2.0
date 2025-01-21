@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { BookOpen, Plus, Loader } from 'lucide-react';
+import { booksService } from '../../services/books';
 
 export default function BookDetails() {
   const [book, setBook] = useState(null);
@@ -13,9 +14,7 @@ export default function BookDetails() {
   useEffect(() => {
     const fetchBookDetails = async () => {
       try {
-        const response = await fetch(`https://www.googleapis.com/books/v1/volumes/${id}?key=AIzaSyCMV_j4smI0KR2qboQ0HDOj0d0JxUmQT4I`);
-        if (!response.ok) throw new Error('Book not found');
-        const data = await response.json();
+        const data = await booksService.getBookDetails(id);
         setBook(data);
       } catch (err) {
         console.error('Error fetching book:', err);
